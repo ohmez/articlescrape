@@ -1,1 +1,58 @@
-<h1>Here are the most recent articles</h1>
+<!-- Main -->
+<article id="main">
+    <header>
+        <h2>League Articles</h2>
+    </header>
+</article>
+
+<section class="wrapper style5">
+    <div class="inner">
+
+        <section>
+            <div class="row text-center">
+            {{#each article}}
+                <div class="col-4 col-12-large">
+                   <a href="{{link}}"> <h3>{{title}}</h3></a>
+                    <br>
+                    <p>{{description}} <br>
+                    </p>
+                    <section>
+                        <img src="{{image}}">
+                        <ul class="actions">
+                            <li>
+                            <a id="addComment" data-id="{{_id}}" class="button">Comment</a>
+                            </li>
+                        </ul>
+                    </section>
+                     <div id="comment-section-{{_id}}">
+                    {{#if comment}}
+                        <h4>Comments</h4>
+                        {{#each comment}}
+                    <p>{{title}}</p>
+                    <p>{{body}}</p>
+                    <ul class="actions">
+                            <li>
+                            <a id="deleteComment" data-id="{{_id}}" class="button primary small">Remove Comment</a>
+                        </li>
+                        </ul>
+                        {{/each}}
+                        {{/if}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            <hr>
+            <div class="row">
+                <section>
+                    <h4>Check for More Articles</h4>
+                    <br>
+                    <ul class="actions">
+                        <li>
+                            <a href="/scrape" class="button primary">Find More</a>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+        </section>
+    </div>
+</section>

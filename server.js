@@ -3,6 +3,7 @@ var logger = require("morgan");
 var mongoose = require("mongoose");
 var axios = require("axios");
 var cheerio = require("cheerio");
+var exphbs = require("express-handlebars");
 var db = require("./models");
 var PORT = process.env.PORT || 8080;
 var app = express();
@@ -13,7 +14,37 @@ app.use(express.json());
 app.use(express.static("public"));
 mongoose.connect("mongodb://localhost/leaguescrapper", {useNewUrlParser: true});
 // end establishing app connections
-
+// Handlebars
+app.engine(
+    "handlebars",
+    exphbs({
+      defaultLayout: "main"
+    })
+  );
+  app.set("view engine", "handlebars");
+// populate articles
+app.get("/", function(req,res) {
+    db.Article.find({}).populate("comment").then(function(articles) {
+        console.log(articles[0]);
+        articles = {article: articles};
+        res.render("index",articles);
+    }).catch(function(err){console.log(err)})
+});
+app.post("/comment/:id", function(req,res) {
+    db.Comment.create(req.body).then(function(newComment) {
+        console.log(newComment);
+        return db.Article.findOneAndUpdate({_id: req.params.id},{ $push: { comment: newComment._id} },{new:true});
+    }).catch(function(err) {console.log(err)});
+    res.redirect("/");
+});
+app.post("/removecomment/:id", function(req,res) {
+    console.log(req.params.id, "should've been removed");
+    db.Comment.findOneAndDelete({_id: req.params.id},).then(function(removed) {
+            console.log("--------\n");
+            console.log(removed);
+            res.redirect("/../");
+    }).catch(function(err) {console.log(err)})
+});
 // scrapes league articiles
 app.get("/scrape", (req,res) => {
     // pull the articles from site
@@ -50,7 +81,7 @@ app.get("/scrape", (req,res) => {
         });
         
     });
-    
+    res.redirect("/../");
 });
 
 // end routes
