@@ -11,16 +11,18 @@
         <section>
             <div class="row text-center">
             {{#each article}}
-                <div class="col-4 col-12-large">
+                <div class="col-6-large col-12-medium">
                    <a href="{{link}}"> <h3>{{title}}</h3></a>
                     <br>
                     <p>{{description}} <br>
                     </p>
                     <section>
+                        <span class="image fit">
                         <img src="{{image}}">
-                        <ul class="actions">
+                        </span>
+                        <ul class="actions fit">
                             <li>
-                            <a id="addComment" data-id="{{_id}}" class="button">Comment</a>
+                            <a id="addComment" data-id="{{_id}}" class="button fit">Comment</a>
                             </li>
                         </ul>
                     </section>
@@ -30,7 +32,7 @@
                         {{#each comment}}
                     <p>{{title}}</p>
                     <p>{{body}}</p>
-                    <ul class="actions">
+                    <ul class="actions fit">
                             <li>
                             <a id="deleteComment" data-id="{{_id}}" class="button primary small">Remove Comment</a>
                         </li>

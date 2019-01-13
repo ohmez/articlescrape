@@ -12,7 +12,10 @@ app.use(logger("dev"));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static("public"));
-mongoose.connect("mongodb://localhost/leaguescrapper", {useNewUrlParser: true});
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/leaguescrapper";
+
+mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
 // end establishing app connections
 // Handlebars
 app.engine(
@@ -25,7 +28,6 @@ app.engine(
 // populate articles
 app.get("/", function(req,res) {
     db.Article.find({}).populate("comment").then(function(articles) {
-        console.log(articles[0]);
         articles = {article: articles};
         res.render("index",articles);
     }).catch(function(err){console.log(err)})
@@ -40,9 +42,7 @@ app.post("/comment/:id", function(req,res) {
 app.post("/removecomment/:id", function(req,res) {
     console.log(req.params.id, "should've been removed");
     db.Comment.findOneAndDelete({_id: req.params.id},).then(function(removed) {
-            console.log("--------\n");
-            console.log(removed);
-            res.redirect("/../");
+            res.redirect("/");
     }).catch(function(err) {console.log(err)})
 });
 // scrapes league articiles
@@ -56,16 +56,14 @@ app.get("/scrape", (req,res) => {
         $(".gs-container").each(function(i, element){
             var result = {};
             result.title = $(this).find("div.field").children("a").attr("title");
-            result.image = $(this).find("div.file").children("img").attr("src");
-            result.link = url + $(this).find("div.field").children("a").attr("href");
+            result.image = url +  $(this).find("div.file").children("img").attr("src");
+            result.link = (url + $(this).find("div.field").children("a").attr("href"));
             result.description = $(this).find("div.teaser-content").children("div.field").text();
             // scrape completed time to store the obj in mongo
             // some of the scapres return null as the values, tried escaping it above but didn't work as hoped
                 db.Article.findOne({link: result.link})
                 .then(function(alreadythere) {
-                    if(alreadythere || alreadythere == null) {
-                        console.log('already there or null');
-                    } else {
+                    if(alreadythere == null) {
                         db.Article.create(result)
                             .then(function (newArticle) {
                                 console.log('article added');
@@ -73,15 +71,17 @@ app.get("/scrape", (req,res) => {
                             .catch(function (err) {
                                 console.log(err);
                             });
+                        } else {
+                            console.log('already there or null');
+                        
                     }
                 })
                 .catch(function(err) {
                     console.log(err);
                 })
         });
-        
+        res.redirect("/../");
     });
-    res.redirect("/../");
 });
 
 // end routes
